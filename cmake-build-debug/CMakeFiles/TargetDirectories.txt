@@ -1,0 +1,3 @@
+C:/Users/30697/Documents/GitHub/GraphicsOpenGL/cmake-build-debug/CMakeFiles/GraphicsOpenGL.dir
+C:/Users/30697/Documents/GitHub/GraphicsOpenGL/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/30697/Documents/GitHub/GraphicsOpenGL/cmake-build-debug/CMakeFiles/rebuild_cache.dir

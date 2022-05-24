@@ -1,3 +1,17 @@
 # ninja log v5
-1	92	6739854677389739	CMakeFiles/GraphicsOpenGL.dir/main.c.obj	383e8fbfedb5f7b6
-93	250	6739854678900084	GraphicsOpenGL.exe	c0f63b1da1b054a4
+1	111	6751166996927138	CMakeFiles/GraphicsOpenGL.dir/main.c.obj	383e8fbfedb5f7b6
+112	224	6751166998007375	GraphicsOpenGL.exe	c0f63b1da1b054a4
+0	116	6751167282805542	CMakeFiles/GraphicsOpenGL.dir/main.c.obj	383e8fbfedb5f7b6
+116	231	6751167283905799	GraphicsOpenGL.exe	c0f63b1da1b054a4
+1	117	6751171458201312	CMakeFiles/GraphicsOpenGL.dir/main.c.obj	383e8fbfedb5f7b6
+117	230	6751171459271553	GraphicsOpenGL.exe	c0f63b1da1b054a4
+1	115	6751171767294913	CMakeFiles/GraphicsOpenGL.dir/main.c.obj	383e8fbfedb5f7b6
+115	227	6751171768365147	GraphicsOpenGL.exe	c0f63b1da1b054a4
+1	115	6751171979912851	CMakeFiles/GraphicsOpenGL.dir/main.c.obj	383e8fbfedb5f7b6
+116	236	6751171981063110	GraphicsOpenGL.exe	c0f63b1da1b054a4
+0	117	6751172083672583	CMakeFiles/GraphicsOpenGL.dir/main.c.obj	383e8fbfedb5f7b6
+117	230	6751172084752824	GraphicsOpenGL.exe	c0f63b1da1b054a4
+0	113	6751172335305541	CMakeFiles/GraphicsOpenGL.dir/main.c.obj	383e8fbfedb5f7b6
+114	225	6751172336375776	GraphicsOpenGL.exe	c0f63b1da1b054a4
+1	117	6751172697106880	CMakeFiles/GraphicsOpenGL.dir/main.c.obj	383e8fbfedb5f7b6
+118	229	6751172698157117	GraphicsOpenGL.exe	c0f63b1da1b054a4

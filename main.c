@@ -1,14 +1,14 @@
 #include <GL/glut.h>
 #include <GL/glu.h>
+#include <math.h>
 
-static float a = 4.;
-static float b = 100.;
-static float scale = 1.0;
-static float angle = 0;
-static int change = 1;
-static int counter = 1;
+static float angle = 0.0f;
+static float lx=0.0f, lz=-1.0f;
+static float x=0.0f, z=5.0f;
 
 GLuint rectangle;
+GLuint square;
+GLuint triangle;
 GLuint house;
 
 GLvoid initGL()
@@ -23,6 +23,8 @@ void init_scene()
 {
     rectangle = glGenLists(2);
     house = rectangle + 1;
+    square = glGenLists(2);
+    triangle = glGenLists(2);
     glNewList(rectangle, GL_COMPILE);
     glBegin(GL_POLYGON);
     glVertex3f(-5, -5, -10);
@@ -31,6 +33,24 @@ void init_scene()
     glVertex3f(-5, -5, 10);
     glEnd();
     glEndList();
+
+    glNewList(square, GL_COMPILE);
+    glBegin(GL_POLYGON);
+    glVertex3f(5, 5, -10);
+    glVertex3f(-5, 5, -10);
+    glVertex3f(-5, -5, -10);
+    glVertex3f(5, -5, -10);
+    glEnd();
+    glEndList();
+
+    glNewList(triangle, GL_COMPILE);
+    glBegin(GL_POLYGON);
+    glVertex3f(5, 5, -10);
+    glVertex3f(-5, 5, -10);
+    glVertex3f(0, 5+8.66025f, -10);
+    glEnd();
+    glEndList();
+
 
     glNewList(house, GL_COMPILE);
 
@@ -74,6 +94,27 @@ void init_scene()
     glCallList(rectangle);
     glPopMatrix();
 
+    glColor3f(0, 0.5f, 0.5f);
+    glPushMatrix();
+    glCallList(square);
+    glPopMatrix();
+
+    glColor3f(0, 0.3f, 0.7f);
+    glPushMatrix();
+    glTranslatef(0,0,20);
+    glCallList(square);
+    glPopMatrix();
+
+    glColor3f(1, 0.2f, 0.2f);
+    glPushMatrix();
+    glCallList(triangle);
+    glPopMatrix();
+
+    glColor3f(1, 0.2f, 0.2f);
+    glPushMatrix();
+    glTranslatef(0,0,20);
+    glCallList(triangle);
+    glPopMatrix();
 
     glDepthFunc(GL_LESS);
     glEnable(GL_DEPTH_TEST);
@@ -83,40 +124,27 @@ void init_scene()
 void display(void)
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    if (counter == 1) {
-        glTranslatef(0, 0, -b);
-        counter = 0;
-    }
-    glRotatef(angle, 1, 1, 0);
-
-
     glCallList(house);
 
+//    gluLookAt(	0, 0, 0,
+//                  0, 0,  0,
+//                  0, 0,  0);
     init_scene();
     glutSwapBuffers();
 }
 
 void window_idle()
 {
-    angle += 0.0001;
-    if (angle > 0.036) {
-        angle = 0;
-    }
+    glutPostRedisplay();
+}
 
-
-    scale += 0.0005 * change;
-    if (a > 8) {
-        scale = 3.995;
-        change = - 1;
-    }
-    if (a < 4) {
-        scale = 0.0005;
-        change = 1;
-    }
-
-    a = 4 + scale;
-
+void arrowKeys(int key, int xx, int yy) {
+    if (key == GLUT_KEY_LEFT)
+        angle -= 0.01f;
+    else if (key == GLUT_KEY_RIGHT)
+        angle += 0.01f;
+    lx = sin(angle);
+    lz = -cos(angle);
     glutPostRedisplay();
 }
 
@@ -142,6 +170,7 @@ int main(int argc, char** argv)
 
     glutDisplayFunc(display);
     glutIdleFunc(window_idle);
+    glutSpecialFunc(arrowKeys);
     glutMainLoop();
 
     return 0;

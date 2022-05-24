@@ -25,10 +25,10 @@ void init_scene()
     house = rectangle + 1;
     glNewList(rectangle, GL_COMPILE);
     glBegin(GL_POLYGON);
-    glVertex3f(-10, -5, 0);
-    glVertex3f(-10, 5, 0);
-    glVertex3f(10, 5, 0);
-    glVertex3f(10, -5, 0);
+    glVertex3f(-5, -5, -10);
+    glVertex3f(5, -5, -10);
+    glVertex3f(5, -5, 10);
+    glVertex3f(-5, -5, 10);
     glEnd();
     glEndList();
 
@@ -36,46 +36,43 @@ void init_scene()
 
     glColor3f(1, 0, 0);
     glPushMatrix();
-    glTranslatef(0,5,0);
-    glRotatef(90,1,0,0);
     glCallList(rectangle);
     glPopMatrix();
 
 
     glColor3f(1, 1, 0);
     glPushMatrix();
-    glTranslatef(0,-5,0);
-    glRotatef(-90,1,0,0);
+    glRotatef(90, 0, 0, 1);
     glCallList(rectangle);
     glPopMatrix();
-
 
     glColor3f(0, 1, 1);
     glPushMatrix();
-    glTranslatef(0,0,-5);
+    glRotatef(-90, 0, 0, 1);
     glCallList(rectangle);
     glPopMatrix();
-//
-//    glColor3f(0, 0, 1);
-//    glPushMatrix();
-//    glScalef(a / 2, a / 2, a / 2);
-//    glRotatef(-90, 0, 1, 0);
-//    glCallList(rectangle);
-//    glPopMatrix();
-//
-//    glColor3f(1, 0, 1);
-//    glPushMatrix();
-//    glRotatef(-90, 1, 0, 0);
-//    glScalef(a / 2, a/2, a / 2);
-//    glCallList(rectangle);
-//    glPopMatrix();
-//
-//    glColor3f(0, 1, 0);
-//    glPushMatrix();
-//    glRotatef(90, 1, 0, 0);
-//    glScalef(a / 2, a / 2, a / 2);
-//    glCallList(rectangle);
-//    glPopMatrix();
+
+    glColor3f(1, 0, 1);
+    glPushMatrix();
+    glTranslatef(0, 10, 0);
+    glCallList(rectangle);
+    glPopMatrix();
+
+    glColor3f(0, 0, 1);
+    glPushMatrix();
+    glTranslatef(-5, 5, 0);
+    glRotatef(60, 0, 0, 1);
+    glTranslatef(5, 5, 0);
+    glCallList(rectangle);
+    glPopMatrix();
+
+    glColor3f(0, 0, 1);
+    glPushMatrix();
+    glTranslatef(5, 5, 0);
+    glRotatef(-60, 0, 0, 1);
+    glTranslatef(-5, 5, 0);
+    glCallList(rectangle);
+    glPopMatrix();
 
 
     glDepthFunc(GL_LESS);
@@ -102,7 +99,7 @@ void display(void)
 
 void window_idle()
 {
-//    angle += 0.0001;
+    angle += 0.0001;
     if (angle > 0.036) {
         angle = 0;
     }

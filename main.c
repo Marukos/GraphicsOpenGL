@@ -10,6 +10,7 @@ GLuint rectangle;
 GLuint square;
 GLuint triangle;
 GLuint house;
+GLuint grass;
 
 GLvoid initGL()
 {
@@ -48,6 +49,15 @@ void init_scene()
     glVertex3f(5, 5, -10);
     glVertex3f(-5, 5, -10);
     glVertex3f(0, 5+8.66025f, -10);
+    glEnd();
+    glEndList();
+
+    glNewList(grass, GL_COMPILE);
+    glBegin(GL_POLYGON);
+    glVertex3f(-100, -5.5f, 100);
+    glVertex3f(-100, -5.5f,-100);
+    glVertex3f(100, -5.5f, -100);
+    glVertex3f(100, -5.5f, 100);
     glEnd();
     glEndList();
 
@@ -116,6 +126,11 @@ void init_scene()
     glCallList(triangle);
     glPopMatrix();
 
+    glColor3f(0, 1, 0.2f);
+    glPushMatrix();
+    glCallList(grass);
+    glPopMatrix();
+
     glDepthFunc(GL_LESS);
     glEnable(GL_DEPTH_TEST);
     glEndList();
@@ -130,11 +145,16 @@ void display(void)
 //                  0, 0,  0,
 //                  0, 0,  0);
     init_scene();
+    glRotatef(angle, 1, 1, 0);
     glutSwapBuffers();
 }
 
 void window_idle()
 {
+    angle += 0.0001;
+    if (angle > 0.036) {
+        angle = 0;
+    }
     glutPostRedisplay();
 }
 

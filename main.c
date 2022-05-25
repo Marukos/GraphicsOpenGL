@@ -1,6 +1,7 @@
 #include <GL/glut.h>
 #include <GL/glu.h>
 #include <math.h>
+#include <stdio.h>
 
 static float angle = 0.0f;
 static float lx=0.0f, lz=-1.0f;
@@ -11,6 +12,14 @@ GLuint square;
 GLuint triangle;
 GLuint house;
 GLuint grass;
+GLuint sun;
+
+GLfloat tetrahedron_vertex[][3] = {
+        0.0f,		 0.0f,		 1.0f,
+        0.0f,		 0.942809f, -0.333333f,
+        -0.816497f, -0.471405f, -0.333333f,
+        0.816497f, -0.471405f, -0.333333f
+};
 
 GLvoid initGL()
 {
@@ -20,12 +29,48 @@ GLvoid initGL()
     glEnable(GL_DEPTH_TEST);
 }
 
+void normalize(GLfloat* v)
+{
+    GLfloat d = sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+    v[0]/= d; v[1]/= d; v[2]/= d;
+}
+
+void divide_triangle(GLfloat* a, GLfloat* b, GLfloat* c, int depth)
+{
+    if (depth> 0) {
+        GLfloat ab[3], ac[3], bc[3];
+        for (unsigned int i = 0; i <3; i++)
+            ab[i] = a[i] + b[i];
+        normalize(ab);
+        for (unsigned int i = 0; i <3; i++)
+            ac[i] = a[i] + c[i];
+        normalize(ac);
+        for (unsigned int i = 0; i <3; i++)
+            bc[i] = b[i] + c[i];
+        normalize(bc);
+        divide_triangle(a, ab, ac, depth-1);
+        divide_triangle(b, bc, ab, depth-1);
+        divide_triangle(c, ac, bc, depth-1);
+        divide_triangle(ab, bc, ac, depth-1);
+    }
+    else {
+        glBegin(GL_LINE_LOOP);
+        glColor3f(1, 1, 0);
+        glVertex3fv(a);
+        glVertex3fv(b);
+        glVertex3fv(c);
+        glEnd();
+    }
+}
+
 void init_scene()
 {
+
     rectangle = glGenLists(2);
     house = rectangle + 1;
-    square = glGenLists(2);
-    triangle = glGenLists(2);
+    square = glGenLists(4);
+    triangle = glGenLists(5);
+    sun = glGenLists(6);
     glNewList(rectangle, GL_COMPILE);
     glBegin(GL_POLYGON);
     glVertex3f(-5, -5, -10);
@@ -54,10 +99,11 @@ void init_scene()
 
     glNewList(grass, GL_COMPILE);
     glBegin(GL_POLYGON);
-    glVertex3f(-100, -5.5f, 100);
-    glVertex3f(-100, -5.5f,-100);
-    glVertex3f(100, -5.5f, -100);
-    glVertex3f(100, -5.5f, 100);
+    glColor3f(0, 1, 0);
+    glVertex3f(-100, 0, 100);
+    glVertex3f(-100, 0,-100);
+    glVertex3f(100, 0, -100);
+    glVertex3f(100, 0, 100);
     glEnd();
     glEndList();
 
@@ -126,9 +172,21 @@ void init_scene()
     glCallList(triangle);
     glPopMatrix();
 
-    glColor3f(0, 1, 0.2f);
+    glEndList();
+
+    glNewList(sun, GL_COMPILE);
+    glBegin(GL_LINE_LOOP);
+    divide_triangle(tetrahedron_vertex[0], tetrahedron_vertex[2], tetrahedron_vertex[1], 4);
+    divide_triangle(tetrahedron_vertex[0], tetrahedron_vertex[3], tetrahedron_vertex[2], 4);
+    divide_triangle(tetrahedron_vertex[0], tetrahedron_vertex[1], tetrahedron_vertex[3], 4);
+    divide_triangle(tetrahedron_vertex[1], tetrahedron_vertex[2], tetrahedron_vertex[3], 4);
+    glEnd();
+    glEndList();
+
+
     glPushMatrix();
-    glCallList(grass);
+    glTranslatef(-50,0,0);
+    glCallList(sun);
     glPopMatrix();
 
     glDepthFunc(GL_LESS);
@@ -140,12 +198,16 @@ void display(void)
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glCallList(house);
+    glRotatef(angle,0,50,50);
 
-//    gluLookAt(	0, 0, 0,
-//                  0, 0,  0,
-//                  0, 0,  0);
+//    glMatrixMode(GL_PROJECTION);
+//    glLoadIdentity();
+//    gluLookAt(0, 40, 70,
+//              0, 0,  0,
+//              0, 1,  0);
+//    glMatrixMode(GL_MODELVIEW);
+
     init_scene();
-    glRotatef(angle, 1, 1, 0);
     glutSwapBuffers();
 }
 
@@ -179,12 +241,12 @@ int main(int argc, char** argv)
     glutInitWindowSize(500, 500);
     glutCreateWindow("rectangle");
 
-    glClearColor(0.0, 0.0, 0.0, 1.0);           // black background
+    glClearColor(1, 1, 1, 1);           // black background
 
 
     glMatrixMode(GL_PROJECTION);                // setup viewing projection
     glLoadIdentity();                           // start with identity matrix
-    glOrtho(-20, 20, -20, 20, -150, 150);     // setup a 200x200x200 viewing world
+    glOrtho(-70, 70, -70, 70, -50, 50);     // setup a 200x200x200 viewing world
 
     glutAttachMenu(GLUT_RIGHT_BUTTON);
 

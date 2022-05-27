@@ -3,9 +3,9 @@
 #include <math.h>
 #include <stdio.h>
 
-static float angle = 0.0f;
-static float lx=0.0f, lz=-1.0f;
-static float x=0.0f, z=5.0f;
+static float angle = 0.0f, sun_angle = 0.0f;
+static int lx=0, lz=0;
+static int x=0, z=70;
 
 GLuint rectangle;
 GLuint square;
@@ -155,7 +155,7 @@ void init_scene()
     glCallList(square);
     glPopMatrix();
 
-    glColor3f(0, 0.3f, 0.7f);
+    glColor3f(0, 0, 0);
     glPushMatrix();
     glTranslatef(0,0,20);
     glCallList(square);
@@ -183,9 +183,10 @@ void init_scene()
     glEnd();
     glEndList();
 
-
     glPushMatrix();
-    glTranslatef(-50,0,0);
+    glTranslatef(0,50,50);
+    glRotatef(sun_angle,0,0,50);
+    glTranslatef(0,-50,-50);
     glCallList(sun);
     glPopMatrix();
 
@@ -198,14 +199,14 @@ void display(void)
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glCallList(house);
-    glRotatef(angle,0,50,50);
+//    glRotatef(angle,0,50,50);
 
-//    glMatrixMode(GL_PROJECTION);
-//    glLoadIdentity();
-//    gluLookAt(0, 40, 70,
-//              0, 0,  0,
-//              0, 1,  0);
-//    glMatrixMode(GL_MODELVIEW);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    gluLookAt(0, 40 + x, 0,
+               lx, 0,  z,
+              0, 1,  0);
+
 
     init_scene();
     glutSwapBuffers();
@@ -213,20 +214,36 @@ void display(void)
 
 void window_idle()
 {
-    angle += 0.0001;
-    if (angle > 0.036) {
-        angle = 0;
+    sun_angle += 0.0001f;
+    if (sun_angle > 0.036) {
+        sun_angle = 0;
     }
     glutPostRedisplay();
 }
 
 void arrowKeys(int key, int xx, int yy) {
-    if (key == GLUT_KEY_LEFT)
-        angle -= 0.01f;
-    else if (key == GLUT_KEY_RIGHT)
-        angle += 0.01f;
-    lx = sin(angle);
-    lz = -cos(angle);
+    if (key == GLUT_KEY_LEFT){
+        angle -= 5 * z/70;
+        if (angle > 360){
+            z = 70;
+        }
+        if (angle < -360)
+            z = -70;
+    }
+    else if (key == GLUT_KEY_RIGHT){
+        angle += 5 * z/70;
+        if (angle > 360){
+            z = -70;
+        }
+        if (angle < -360)
+            z = 70;
+    }
+
+
+    lx = angle;
+    if (lx % 15 == 0)
+        x += 1 * z/70;
+    printf("%d\n", lx);
     glutPostRedisplay();
 }
 

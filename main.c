@@ -3,12 +3,13 @@
 #include <math.h>
 #include <stdio.h>
 
-static float angle = 0.0f, sun_angle = 0.0f;
-static int lx=0, lz=0;
-static int x=0, z=70;
+static float angle=0.0f, sun_angle=0.0f;
+static float lx=0.0f, lz=-1.0f;
+static float x=0.0f, z=5.0f;
+static int polygons = 0;
 
 GLuint rectangle;
-GLuint square;
+GLuint square, small_square;
 GLuint triangle;
 GLuint house;
 GLuint grass;
@@ -71,6 +72,8 @@ void init_scene()
     square = glGenLists(4);
     triangle = glGenLists(5);
     sun = glGenLists(6);
+    small_square = glGenLists(7);
+
     glNewList(rectangle, GL_COMPILE);
     glBegin(GL_POLYGON);
     glVertex3f(-5, -5, -10);
@@ -89,6 +92,15 @@ void init_scene()
     glEnd();
     glEndList();
 
+    glNewList(small_square, GL_COMPILE);
+    glBegin(GL_POLYGON);
+    glVertex3f(-1, 0, 1);
+    glVertex3f(-1, 0, -1);
+    glVertex3f(1, 0, -1);
+    glVertex3f(1, 0, 1);
+    glEnd();
+    glEndList();
+
     glNewList(triangle, GL_COMPILE);
     glBegin(GL_POLYGON);
     glVertex3f(5, 5, -10);
@@ -97,44 +109,90 @@ void init_scene()
     glEnd();
     glEndList();
 
-    glNewList(grass, GL_COMPILE);
-    glBegin(GL_POLYGON);
-    glColor3f(0, 1, 0);
-    glVertex3f(-100, 0, 100);
-    glVertex3f(-100, 0,-100);
-    glVertex3f(100, 0, -100);
-    glVertex3f(100, 0, 100);
-    glEnd();
-    glEndList();
-
+    if (polygons == 1) {
+        glNewList(grass, GL_COMPILE);
+        glBegin(GL_POLYGON);
+        glColor3f(0, 1, 0);
+        glVertex3f(-50, 0, 50);
+        glVertex3f(-50, 0,-50);
+        glVertex3f(50, 0, -50);
+        glVertex3f(50, 0, 50);
+        glEnd();
+        glEndList();
+    } else {
+        glNewList(grass, GL_COMPILE);
+        glBegin(GL_POLYGON);
+        glColor3f(0, 1, 0);
+        for (int i=-50; i<=50; i++)
+            for (int j=-50; j<50; j++) {
+                glVertex3f(i, 0, j);
+                glVertex3f(i, 0, j+1);
+                glVertex3f(i+1, 0, j+1);
+                glVertex3f(i+1, 0, j);
+            }
+        glEnd();
+        glEndList();
+    }
 
     glNewList(house, GL_COMPILE);
+    glColor3f(1,0,0);
+    float mat[4];
+    mat[0] = 0.0f;
+    mat[1] = 0.0f;
+    mat[2] = 0.0f;
+    mat[3] = 1.0f;
+    glMaterialfv(GL_FRONT, GL_AMBIENT, mat);
+    mat[0] = 0.5f;
+    mat[1] = 0.0f;
+    mat[2] = 0.0f;
+    glMaterialfv(GL_FRONT, GL_DIFFUSE, mat);
+    mat[0] = 0.7f;
+    mat[1] = 0.6f;
+    mat[2] = 0.6f;
+    glMaterialfv(GL_FRONT, GL_SPECULAR, mat);
+    glMaterialf(GL_FRONT, GL_SHININESS, 0.25f * 128.0f);
 
-    glColor3f(1, 0, 0);
     glPushMatrix();
     glCallList(rectangle);
     glPopMatrix();
 
 
-    glColor3f(1, 1, 0);
     glPushMatrix();
     glRotatef(90, 0, 0, 1);
     glCallList(rectangle);
     glPopMatrix();
 
-    glColor3f(0, 1, 1);
     glPushMatrix();
     glRotatef(-90, 0, 0, 1);
     glCallList(rectangle);
     glPopMatrix();
 
-    glColor3f(1, 0, 1);
     glPushMatrix();
     glTranslatef(0, 10, 0);
     glCallList(rectangle);
     glPopMatrix();
 
-    glColor3f(0, 0, 1);
+    glPushMatrix();
+    glCallList(square);
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(0,0,20);
+    glCallList(square);
+    glPopMatrix();
+
+    glPushMatrix();
+    glCallList(triangle);
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(0,0,20);
+    glCallList(triangle);
+    glPopMatrix();
+
+    glMaterialf(GL_FRONT_AND_BACK,
+                GL_SHININESS, 100);
+    glColor3f(192.0f/256,192.0f/256,192.0f/256);
     glPushMatrix();
     glTranslatef(-5, 5, 0);
     glRotatef(60, 0, 0, 1);
@@ -142,34 +200,13 @@ void init_scene()
     glCallList(rectangle);
     glPopMatrix();
 
-    glColor3f(0, 0, 1);
+    glMaterialf(GL_FRONT_AND_BACK,
+                GL_SHININESS, 100);
     glPushMatrix();
     glTranslatef(5, 5, 0);
     glRotatef(-60, 0, 0, 1);
     glTranslatef(-5, 5, 0);
     glCallList(rectangle);
-    glPopMatrix();
-
-    glColor3f(0, 0.5f, 0.5f);
-    glPushMatrix();
-    glCallList(square);
-    glPopMatrix();
-
-    glColor3f(0, 0, 0);
-    glPushMatrix();
-    glTranslatef(0,0,20);
-    glCallList(square);
-    glPopMatrix();
-
-    glColor3f(1, 0.2f, 0.2f);
-    glPushMatrix();
-    glCallList(triangle);
-    glPopMatrix();
-
-    glColor3f(1, 0.2f, 0.2f);
-    glPushMatrix();
-    glTranslatef(0,0,20);
-    glCallList(triangle);
     glPopMatrix();
 
     glEndList();
@@ -184,9 +221,12 @@ void init_scene()
     glEndList();
 
     glPushMatrix();
-    glTranslatef(0,50,50);
-    glRotatef(sun_angle,0,0,50);
-    glTranslatef(0,-50,-50);
+    glCallList(grass);
+    glPopMatrix();
+
+    glPushMatrix();
+    glRotatef(sun_angle,0,0,1);
+    glTranslatef(-50,0,0);
     glCallList(sun);
     glPopMatrix();
 
@@ -199,13 +239,12 @@ void display(void)
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glCallList(house);
-//    glRotatef(angle,0,50,50);
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt(0, 40 + x, 0,
-               lx, 0,  z,
-              0, 1,  0);
+    gluLookAt(x, 0.6f, z,
+              x+lx, 0,  z+lz,
+              0.0f, 1.0f,  0.0f);
 
 
     init_scene();
@@ -214,8 +253,12 @@ void display(void)
 
 void window_idle()
 {
-    sun_angle += 0.0001f;
-    if (sun_angle > 0.036) {
+    if (polygons == 1)
+        sun_angle -= 0.02f;
+    else
+        sun_angle -= 0.1f;
+
+    if (sun_angle < -180) {
         sun_angle = 0;
     }
     glutPostRedisplay();
@@ -223,30 +266,39 @@ void window_idle()
 
 void arrowKeys(int key, int xx, int yy) {
     if (key == GLUT_KEY_LEFT){
-        angle -= 5 * z/70;
-        if (angle > 360){
-            z = 70;
-        }
-        if (angle < -360)
-            z = -70;
+        angle -= 0.01f;
+        lx = sin(angle);
+        lz = -cos(angle);
     }
     else if (key == GLUT_KEY_RIGHT){
-        angle += 5 * z/70;
-        if (angle > 360){
-            z = -70;
-        }
-        if (angle < -360)
-            z = 70;
+        angle += 0.01f;
+        lx = sin(angle);
+        lz = -cos(angle);
     }
 
-
-    lx = angle;
-    if (lx % 15 == 0)
-        x += 1 * z/70;
-    printf("%d\n", lx);
     glutPostRedisplay();
 }
 
+void popUpMenu(int option)
+{
+    switch (option) {
+        case 1:
+            polygons = option;
+            break;
+        case 2:
+            polygons=option;
+            break;
+    }
+    glutPostRedisplay();
+}
+
+void createGLUTMenus()
+{
+    glutCreateMenu(popUpMenu);
+    glutAddMenuEntry("One polygon grass", 1);
+    glutAddMenuEntry("100 polygons grass", 2);
+    glutAttachMenu(GLUT_RIGHT_BUTTON);
+}
 
 int main(int argc, char** argv)
 {
@@ -263,13 +315,14 @@ int main(int argc, char** argv)
 
     glMatrixMode(GL_PROJECTION);                // setup viewing projection
     glLoadIdentity();                           // start with identity matrix
-    glOrtho(-70, 70, -70, 70, -50, 50);     // setup a 200x200x200 viewing world
+    glOrtho(-50, 50, -50, 50, -50, 50);     // setup a 200x200x200 viewing world
 
     glutAttachMenu(GLUT_RIGHT_BUTTON);
 
     glutDisplayFunc(display);
     glutIdleFunc(window_idle);
     glutSpecialFunc(arrowKeys);
+    createGLUTMenus();
     glutMainLoop();
 
     return 0;

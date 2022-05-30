@@ -8,9 +8,9 @@ static float lx = 0.0f, lz = -1.0f;
 static float x = 0.0f, z = 5.0f;
 static int polygons = 1;
 GLfloat pos[4] = { -50, 0, 0, 1 };
-GLfloat direction[4];
+GLfloat direction[3] = {0, 0, 0};
 float mat[4];
-GLfloat mat_emission[] = { 0.3, 0.2, 0.0, 0.0 };
+GLfloat mat_emission[] = { 0.3f, 0.2f, 0.0f, 0.0f};
 
 GLuint rectangle;
 GLuint square, small_square;
@@ -75,7 +75,7 @@ void divide_triangle(GLfloat* a, GLfloat* b, GLfloat* c, int depth)
         mat[2] = 0.0f;
         glMaterialfv(GL_FRONT, GL_SPECULAR, mat);
         glMaterialf(GL_FRONT, GL_SHININESS, 0.078125f * 128.0f);
-        //glColor3f(1, 1, 0);
+
         glVertex3fv(a);
         glVertex3fv(b);
         glVertex3fv(c);
@@ -196,6 +196,13 @@ void init_scene()
     glPopMatrix();
 
     glPushMatrix();
+//    GLfloat spotlight_ambient[4] = {1,1,0,1.0f};
+//    glLightfv(GL_LIGHT1, GL_AMBIENT, spotlight_ambient);
+    GLfloat spotlight_direction[3] = {0.0f, -1.0f,  0.0f};
+    glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, spotlight_direction);
+    glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, 30);
+    GLfloat spotlight_pos[4] = {-5.0f, 5.0f, 10.0f, 1.0f};
+    glLightfv(GL_LIGHT1, GL_POSITION, spotlight_pos);
     glRotatef(-90, 0, 0, 1);
     glCallList(rectangle);
     glPopMatrix();
@@ -238,7 +245,6 @@ void init_scene()
     glMaterialfv(GL_FRONT, GL_SPECULAR, mat);
     glMaterialf(GL_FRONT, GL_SHININESS, 0.088f * 128.0f);
     glMaterialf(GL_FRONT_AND_BACK,GL_SHININESS, 100);
-    //glColor3f(192.0f / 256, 192.0f / 256, 192.0f / 256);
     glPushMatrix();
     glTranslatef(-5, 5, 0);
     glRotatef(60, 0, 0, 1);
@@ -253,10 +259,7 @@ void init_scene()
     glTranslatef(-5, 5, 0);
     glCallList(rectangle);
     glPopMatrix();
-
     glEndList();
-
-    
 
     glNewList(sun, GL_COMPILE);
     glBegin(GL_LINE_LOOP);
@@ -274,7 +277,7 @@ void init_scene()
     mat[2] = 0.0f;
     glMaterialfv(GL_FRONT, GL_SPECULAR, mat);
     glMaterialf(GL_FRONT, GL_SHININESS, 0.078125f * 128.0f);
-    //glMaterialfv(GL_FRONT, GL_EMISSION, mat_emission);
+//    glMaterialfv(GL_FRONT, GL_EMISSION, mat_emission);
 
     divide_triangle(tetrahedron_vertex[0], tetrahedron_vertex[2], tetrahedron_vertex[1], 4);
     divide_triangle(tetrahedron_vertex[0], tetrahedron_vertex[3], tetrahedron_vertex[2], 4);
@@ -283,9 +286,6 @@ void init_scene()
     glEnd();
     glEndList();
 
-    glPushMatrix();
-    glCallList(grass);
-    glPopMatrix();
 
     mat[0] = 0.05f;
     mat[1] = 0.05f;
@@ -301,13 +301,11 @@ void init_scene()
     mat[2] = 0.04f;
     glMaterialfv(GL_FRONT, GL_SPECULAR, mat);
     glMaterialf(GL_FRONT, GL_SHININESS, 0.078125f * 128.0f);
-    //glMaterialfv(GL_FRONT, GL_EMISSION, mat_emission);
 
     glPushMatrix();
     glRotatef(sun_angle, 0, 0, 1);
-    //glLightfv(GL_LIGHT0, GL_POSITION, pos);
     glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, direction);
-    glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, 360);
+//    glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, 20);
     glLightfv(GL_LIGHT0, GL_POSITION, pos);
     glTranslatef(-50, 0, 0);
     glCallList(sun);
@@ -321,12 +319,15 @@ void init_scene()
 void display(void)
 {
     glEnable(GL_LIGHTING);
-    glEnable(GL_LIGHT0);
+//    glEnable(GL_LIGHT0);
+    glEnable(GL_LIGHT1);
     glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);
     glShadeModel(GL_SMOOTH);
     glEnable(GL_DEPTH_TEST);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
     glCallList(house);
+    glCallList(grass);
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
@@ -352,8 +353,6 @@ void window_idle()
 
     direction[0] = -sin(sun_angle) * 50;
     direction[1] = cos(sun_angle) * 50;
-    direction[2] = 0;
-    direction[3] = 0;
     glutPostRedisplay();
 }
 

@@ -17,6 +17,7 @@ GLfloat norm3[4] = { 0, 0, 1, 0 };
 GLfloat norm4[4] = { 0, 0, -1, 0 };
 float mat[4];
 GLfloat mat_emission[] = { 0.3f, 0.2f, 0.0f, 0.0f };
+GLfloat factor;
 
 GLuint rectangle;
 GLuint square, small_square;
@@ -174,7 +175,7 @@ void init_scene()
     mat[0] = 0.4f;
     mat[1] = 0.5f;
     mat[2] = 0.4f;
-    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, mat);
+    //glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, mat);
     mat[0] = 0.04f;
     mat[1] = 0.7f;
     mat[2] = 0.04f;
@@ -362,7 +363,7 @@ void display(void)
     glRotatef(sun_angle, 0, 0, 1);
     glTranslatef(-50, 0, 0);
     glCallList(sun);
-    GLfloat spotlight_ambient[] = { 1,	1,	1, 1 };
+    GLfloat spotlight_ambient[] = { light_intense,light_intense,light_intense, 1 };
     glLightfv(GL_LIGHT0, GL_AMBIENT, spotlight_ambient);
     glLightfv(GL_LIGHT0, GL_POSITION, pos);
     glPopMatrix();
@@ -378,18 +379,21 @@ void display(void)
 
 void window_idle()
 {
-    if (polygons == 1)
+    if (polygons == 1) {
+        factor = -0.02f;
         sun_angle -= 0.02f;
-    else
+    }
+    else {
+        factor = -0.1f;
         sun_angle -= 0.1f;
+    }
 
     if (sun_angle > -90) {
-        light_intense = 0.3 + 0.7 / (sun_angle / (-90));
+        light_intense = 0.3 + 0.7 * (sun_angle / (-90)); 
     }
     else if (sun_angle > -180) {
-        light_intense = 1 - 0.7 / ( sun_angle / (-180) );
+        light_intense = 1 - 0.7 * ((sun_angle + 90) / (-90));
     }
-
 
     if (sun_angle < -180) {
         sun_angle = 0;
@@ -448,7 +452,7 @@ void createGLUTMenus()
     //Shadows sub menu
     auto shadowsSubMenuID = glutCreateMenu(shadowsRightClickSubMenu);
     glutAddMenuEntry("Smooth", 1);
-    glutAddMenuEntry("Vertical", 0);
+    glutAddMenuEntry("Flat", 0);
 
     //Parent menu
     glutCreateMenu(rightClickMenu);

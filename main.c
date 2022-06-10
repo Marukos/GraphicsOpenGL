@@ -1,6 +1,7 @@
 #include <GL/glut.h>
 #include <GL/glu.h>
 #include <math.h>
+#include <stdio.h>
 
 static float angle = 0.0f, sun_angle = 0.0f;
 static float lx = 0.0f, lz = -1.0f;
@@ -9,8 +10,13 @@ static int polygons = 1;
 static int light = 1;
 static int shadows = 1;
 static float light_intense = 0.3f;
-GLfloat pos[4] = { 0.0f, 0.0f, 0.0f, 1 };
+GLfloat pos[4] = { 0, -1, 0, 1 };
+GLfloat norm[4] = { 0, 1, 0, 0 };
+GLfloat norm2[4] = { 0, -1, 0, 0 };
+GLfloat norm3[4] = { 0, 0, 1, 0 };
+GLfloat norm4[4] = { 0, 0, -1, 0 };
 float mat[4];
+GLfloat mat_emission[] = { 0.3f, 0.2f, 0.0f, 0.0f };
 
 GLuint rectangle;
 GLuint square, small_square;
@@ -107,10 +113,12 @@ void init_scene()
     GLfloat diff[] = { 1, 1, 1, 1 };
     glLightfv(GL_LIGHT1, GL_AMBIENT, spotlight_ambient);
     glLightfv(GL_LIGHT1, GL_DIFFUSE, diff);
-
     GLfloat spotlight_pos[4] = { -5.0f, 10.0f, 10.0f, 1.0f };
     GLfloat spotlight_direction[4] = { -5.0f, -10.0f,  6.0f ,0.0f};
+    
 
+    // -5 10 10  1
+    // -10 0  14   1
     glLightfv(GL_LIGHT1, GL_POSITION, spotlight_pos);
     glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, spotlight_direction);
     
@@ -119,6 +127,7 @@ void init_scene()
 
     glNewList(rectangle, GL_COMPILE);
     glBegin(GL_POLYGON);
+    glNormal3fv(norm2);
     glVertex3f(-5, -5, -10);
     glVertex3f(5, -5, -10);
     glVertex3f(5, -5, 10);
@@ -128,6 +137,7 @@ void init_scene()
 
     glNewList(square, GL_COMPILE);
     glBegin(GL_POLYGON);
+    glNormal3fv(norm4);
     glVertex3f(5, 5, -10);
     glVertex3f(-5, 5, -10);
     glVertex3f(-5, -5, -10);
@@ -146,11 +156,13 @@ void init_scene()
 
     glNewList(triangle, GL_COMPILE);
     glBegin(GL_POLYGON);
+    glNormal3fv(norm4);
     glVertex3f(5, 5, -10);
     glVertex3f(-5, 5, -10);
     glVertex3f(0, 5 + 8.66025f, -10);
     glEnd();
     glEndList();
+
 
     glNewList(grass1, GL_COMPILE);
     glBegin(GL_POLYGON);
@@ -168,7 +180,7 @@ void init_scene()
     mat[2] = 0.04f;
     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, mat);
     glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 0.078125f * 128.0f);
-
+    glNormal3fv(norm);
     glVertex3f(-50, 0, 50);
     glVertex3f(-50, 0, -50);
     glVertex3f(50, 0, -50);
@@ -195,6 +207,7 @@ void init_scene()
     for (int i = -50; i <= 50; i++) 
         for (int j = -50; j < 50; j++) {
             glBegin(GL_POLYGON);
+            glNormal3fv( norm);
             glVertex3f(i, 0, j);
             glVertex3f(i, 0, j + 1);
             glVertex3f(i + 1, 0, j + 1);
@@ -244,7 +257,7 @@ void init_scene()
     glPopMatrix();
 
     glPushMatrix();
-    glTranslatef(0, 0, 20);
+    glRotatef(180, 1, 0, 0);
     glCallList(square);
     glPopMatrix();
 
@@ -256,8 +269,11 @@ void init_scene()
     glTranslatef(0, 0, 20);
     glCallList(triangle);
     glPopMatrix();
+
     glEnd();
     glEndList();
+
+
 
     glNewList(roof, GL_COMPILE);
     
@@ -294,6 +310,7 @@ void init_scene()
     glEnd();
     glEndList();
 
+
     glNewList(sun, GL_COMPILE);
     glBegin(GL_LINE_LOOP);
 
@@ -322,7 +339,7 @@ void display(void)
     else
         glDisable(GL_LIGHT1);
     glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);
-//    glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, 1);
+    glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, 1);
     if (shadows == 1)
         glShadeModel(GL_SMOOTH);
     else
@@ -341,6 +358,7 @@ void display(void)
     glCallList(light1);
 
     glPushMatrix();
+    GLfloat mat_emission[] = { 0.3, 0.2, 0.2, 0.0 };
     glRotatef(sun_angle, 0, 0, 1);
     glTranslatef(-50, 0, 0);
     glCallList(sun);
@@ -371,6 +389,7 @@ void window_idle()
     else if (sun_angle > -180) {
         light_intense = 1 - 0.7 / ( sun_angle / (-180) );
     }
+
 
     if (sun_angle < -180) {
         sun_angle = 0;
@@ -449,12 +468,12 @@ int main(int argc, char** argv)
     glutInitWindowSize(500, 500);
     glutCreateWindow("House");
 
-    glClearColor(1, 1, 1, 1);           // black background
+    glClearColor(1, 1, 1, 1);           // white background
 
     
     glMatrixMode(GL_PROJECTION);                // setup viewing projection
     glLoadIdentity();                           // start with identity matrix
-    glOrtho(-50, 50, -50, 50, -50, 50);     // setup a 200x200x200 viewing world
+    glOrtho(-50, 50, -50, 50, -50, 50);         // setup a 200x200x200 viewing world
 
     glutAttachMenu(GLUT_RIGHT_BUTTON);
     init_scene();
